@@ -16,9 +16,12 @@
     "url": "https://github.com/Raynos/observ-hash/issues",
     "email": "raynos2@gmail.com"
   },
-  "dependencies": {},
+  "dependencies": {
+    "xtend": "~2.1.2",
+    "observ": "~0.1.5"
+  },
   "devDependencies": {
-    "tape": "~1.0.2"
+    "tape": "~2.5.0"
   },
   "licenses": [
     {
