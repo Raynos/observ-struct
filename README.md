@@ -14,6 +14,12 @@ An object with observable key value pairs
 
 ## Example
 
+An observable will emit a new immutable value whenever one of
+  its keys changes.
+
+Nested keys will still be the same value if they were not changed
+  in that particular `.set()` call.
+
 ```js
 var ObservHash = require("observ-hash")
 var Observ = require("observ")
