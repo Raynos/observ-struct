@@ -38,13 +38,13 @@ test("observ emits change", function (assert) {
 
     assert.equal(changes.length, 3)
     assert.deepEqual(changes[0], {
-        foo: "foo", bar: "bar"
+        foo: "foo", bar: "bar", _diff: { "foo": "foo" }
     })
     assert.deepEqual(changes[1], {
-        foo: "foo2", bar: "bar"
+        foo: "foo2", bar: "bar", _diff: { "foo": "foo2" }
     })
     assert.deepEqual(changes[2], {
-        foo: "foo2", bar: "bar2"
+        foo: "foo2", bar: "bar2", _diff: { "bar": "bar2" }
     })
     assert.notEqual(changes[0], changes[1])
     assert.notEqual(changes[1], changes[2])
@@ -103,27 +103,31 @@ test("works with nested things", function (assert) {
         customers: 5,
         fruits: { apples: 3, oranges: 5 }
     })
+
     assert.deepEqual(changes[0], {
         customers: 5,
-        fruits: { apples: 3, oranges: 6 }
+        fruits: { apples: 3, oranges: 6, _diff: { "oranges": 6 } },
+        _diff: { fruits: { oranges: 6 } }
     })
     assert.deepEqual(changes[1], {
         customers: 10,
-        fruits: { apples: 3, oranges: 6 }
+        _diff: { customers: 10 },
+        fruits: { apples: 3, oranges: 6, _diff: { oranges: 6 } }
     })
     assert.deepEqual(changes[2], {
         customers: 10,
-        fruits: { apples: 4, oranges: 6 }
+        _diff: { fruits: { apples: 4 } },
+        fruits: { apples: 4, oranges: 6, _diff: { apples: 4 } }
     })
 
     assert.deepEqual(initialState.fruits, {
         apples: 3, oranges: 5
     })
     assert.deepEqual(fruitChanges[0], {
-        apples: 3, oranges: 6
+        apples: 3, oranges: 6, _diff: { oranges: 6 }
     })
     assert.deepEqual(fruitChanges[1], {
-        apples: 4, oranges: 6
+        apples: 4, oranges: 6, _diff: { apples: 4 }
     })
 
     assert.equal(changes[1].fruits, changes[0].fruits,
