@@ -16,6 +16,12 @@ function ObservStruct(struct) {
     var initialState = {}
 
     keys.forEach(function (key) {
+        if (key === "name") {
+            throw new Error("cannot create an observ-struct " +
+                "with a key named 'name'. Clashes with " +
+                "`Function.prototype.name`.");
+        }
+
         var observ = struct[key]
         initialState[key] = typeof observ === "function" ?
             observ() : observ
