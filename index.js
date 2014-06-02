@@ -1,29 +1,29 @@
 var Observ = require("observ")
 var extend = require("xtend")
 
-/* ObservHash := (Object<String, Observ<T>>) => 
+/* ObservStruct := (Object<String, Observ<T>>) => 
     Object<String, Observ<T>> &
         Observ<Object<String, T> & {
             _diff: Object<String, Any>
         }>
 
 */
-module.exports = ObservHash
+module.exports = ObservStruct
 
-function ObservHash(hash) {
-    var keys = Object.keys(hash)
+function ObservStruct(struct) {
+    var keys = Object.keys(struct)
 
     var initialState = {}
 
     keys.forEach(function (key) {
-        var observ = hash[key]
+        var observ = struct[key]
         initialState[key] = typeof observ === "function" ?
             observ() : observ
     })
 
     var obs = Observ(initialState)
     keys.forEach(function (key) {
-        var observ = hash[key]
+        var observ = struct[key]
         obs[key] = observ
 
         if (typeof observ === "function") {
