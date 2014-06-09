@@ -1,6 +1,14 @@
 var Observ = require("observ")
 var extend = require("xtend")
 
+var blackList = ["name", "_diff", "_type", "_version"]
+var blackListReasons = {
+    "name": "Clashes with `Function.prototype.name`.\n",
+    "_diff": "_diff is reserved key of observ-struct.\n",
+    "_type": "_type is reserved key of observ-struct.\n",
+    "_version": "_version is reserved key of observ-struct.\n"
+}
+
 /* ObservStruct := (Object<String, Observ<T>>) => 
     Object<String, Observ<T>> &
         Observ<Object<String, T> & {
@@ -16,10 +24,10 @@ function ObservStruct(struct) {
     var initialState = {}
 
     keys.forEach(function (key) {
-        if (key === "name") {
+        if (blackList.indexOf(key) !== -1) {
             throw new Error("cannot create an observ-struct " +
-                "with a key named 'name'. Clashes with " +
-                "`Function.prototype.name`.");
+                "with a key named '" + key + "'.\n" +
+                blackListReasons[key]);
         }
 
         var observ = struct[key]
@@ -44,6 +52,9 @@ function ObservStruct(struct) {
             })
         }
     })
+
+    obs._type = "observ-struct"
+    obs._version = "4"
 
     return obs
 }
