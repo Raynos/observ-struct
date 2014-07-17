@@ -17,7 +17,7 @@
     "email": "raynos2@gmail.com"
   },
   "dependencies": {
-    "observ": "~0.1.5",
+    "observ": "~0.2.0",
     "xtend": "^3.0.0"
   },
   "devDependencies": {
