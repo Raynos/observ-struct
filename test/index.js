@@ -135,3 +135,50 @@ test("works with nested things", function (assert) {
 
     assert.end()
 })
+
+test("observ struct with blackList", function t(assert) {
+    assert.throws(function () {
+        ObservHash({
+            name: Observ("foo")
+        });
+    }, /cannot create/);
+
+    assert.end()
+})
+
+test("supports two way data binding", function t(assert) {
+    var obs = ObservHash({
+        foo: Observ("bar")
+    });
+
+    obs.foo.set("bar2")
+
+    assert.equal(obs().foo, "bar2")
+    assert.equal(obs.foo(), "bar2")
+
+    obs.set({ foo: "bar3" })
+
+    assert.equal(obs().foo, "bar3")
+    assert.equal(obs.foo(), "bar3")
+
+    assert.end()
+})
+
+test("two way data binding doesnt emit twice", function t(assert) {
+    var obs = ObservHash({
+        foo: Observ("bar")
+    })
+
+    var values = []
+    obs.foo(function (v) {
+        values.push(v)
+    })
+
+    obs.set({ foo: "bar2" })
+    obs.set({ foo: "bar2" })
+
+    assert.equal(values.length, 1)
+    assert.equal(values[0], "bar2")
+
+    assert.end()
+})

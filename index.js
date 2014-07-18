@@ -8,6 +8,7 @@ var blackListReasons = {
     "_type": "_type is reserved key of observ-struct.\n",
     "_version": "_version is reserved key of observ-struct.\n"
 }
+var NO_TRANSACTION = {}
 
 /* ObservStruct := (Object<String, Observ<T>>) => 
     Object<String, Observ<T>> &
@@ -22,6 +23,7 @@ function ObservStruct(struct) {
     var keys = Object.keys(struct)
 
     var initialState = {}
+    var currentTransaction = NO_TRANSACTION
 
     keys.forEach(function (key) {
         if (blackList.indexOf(key) !== -1) {
@@ -48,9 +50,24 @@ function ObservStruct(struct) {
                 diff[key] = value && value._diff ?
                     value._diff : value
                 state._diff = diff
+                currentTransaction = state
                 obs.set(state)
+                currentTransaction = NO_TRANSACTION
             })
         }
+    })
+
+    obs(function (newState) {
+        if (currentTransaction === newState) {
+            return
+        }
+
+        keys.forEach(function (key) {
+            var observ = struct[key]
+            if (observ() !== newState[key]) {
+                observ.set(newState[key])
+            }
+        })
     })
 
     obs._type = "observ-struct"
