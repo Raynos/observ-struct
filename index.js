@@ -102,7 +102,7 @@ function ObservStruct(struct) {
     })
 
     obs._type = "observ-struct"
-    obs._version = "4"
+    obs._version = "5"
 
     return obs
 }
