@@ -24,6 +24,7 @@ function ObservStruct(struct) {
 
     var initialState = {}
     var currentTransaction = NO_TRANSACTION
+    var nestedTransaction = NO_TRANSACTION
 
     keys.forEach(function (key) {
         if (blackList.indexOf(key) !== -1) {
@@ -44,6 +45,10 @@ function ObservStruct(struct) {
 
         if (typeof observ === "function") {
             observ(function (value) {
+                if (nestedTransaction === value) {
+                    return
+                }
+
                 var state = extend(obs())
                 state[key] = value
                 var diff = {}
@@ -56,6 +61,16 @@ function ObservStruct(struct) {
             })
         }
     })
+    var _set = obs.set
+    obs.set = function trackDiff(value) {
+        if (currentTransaction === value) {
+            return _set(value)
+        }
+
+        var newState = extend(value)
+        newState._diff = value
+        _set(newState)
+    }
 
     obs(function (newState) {
         if (currentTransaction === newState) {
@@ -64,11 +79,14 @@ function ObservStruct(struct) {
 
         keys.forEach(function (key) {
             var observ = struct[key]
+            var newObservValue = newState[key]
 
             if (typeof observ === "function" &&
-                observ() !== newState[key]
+                observ() !== newObservValue
             ) {
+                nestedTransaction = newObservValue
                 observ.set(newState[key])
+                nestedTransaction = NO_TRANSACTION
             }
         })
     })

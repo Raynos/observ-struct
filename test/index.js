@@ -197,3 +197,28 @@ test("support plain values", function t(assert) {
 
     assert.end()
 })
+
+
+test("_diff is correct with 2way bind", function t(assert) {
+    var obs = ObservHash({
+        foo: Observ("bar")
+    })
+
+    var values = []
+    obs(function (v) {
+        values.push(v)
+    })
+
+    obs.set({ foo: "bar2" })
+
+    assert.equal(obs().foo, "bar2")
+    assert.equal(obs.foo(), "bar2")
+
+    assert.equal(values.length, 1)
+    assert.deepEqual(values[0], {
+        foo: "bar2",
+        _diff: { foo: "bar2" }
+    })
+
+    assert.end()
+})
