@@ -64,7 +64,10 @@ function ObservStruct(struct) {
 
         keys.forEach(function (key) {
             var observ = struct[key]
-            if (observ() !== newState[key]) {
+
+            if (typeof observ === "function" &&
+                observ() !== newState[key]
+            ) {
                 observ.set(newState[key])
             }
         })

@@ -182,3 +182,18 @@ test("two way data binding doesnt emit twice", function t(assert) {
 
     assert.end()
 })
+
+test("support plain values", function t(assert) {
+    var obs = ObservHash({
+        foo: Observ("bar"),
+        baz: "plain value"
+    })
+
+    obs.set({ foo: "bar2", baz: "plain value" })
+
+    assert.equal(obs().foo, "bar2")
+    assert.equal(obs().baz, "plain value")
+    assert.equal(obs.foo(), "bar2")
+
+    assert.end()
+})
