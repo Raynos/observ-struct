@@ -10,6 +10,15 @@ var blackListReasons = {
 }
 var NO_TRANSACTION = {}
 
+function setNonEnumerable(object, key, value) {
+    Object.defineProperty(object, key, {
+        value: value,
+        writable: true,
+        configurable: true,
+        enumerable: false
+    })
+}
+
 /* ObservStruct := (Object<String, Observ<T>>) => 
     Object<String, Observ<T>> &
         Observ<Object<String, T> & {
@@ -54,7 +63,8 @@ function ObservStruct(struct) {
                 var diff = {}
                 diff[key] = value && value._diff ?
                     value._diff : value
-                state._diff = diff
+
+                setNonEnumerable(state, "_diff", diff)
                 currentTransaction = state
                 obs.set(state)
                 currentTransaction = NO_TRANSACTION
@@ -68,7 +78,7 @@ function ObservStruct(struct) {
         }
 
         var newState = extend(value)
-        newState._diff = value
+        setNonEnumerable(newState, "_diff", value)
         _set(newState)
     }
 

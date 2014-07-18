@@ -38,14 +38,17 @@ test("observ emits change", function (assert) {
 
     assert.equal(changes.length, 3)
     assert.deepEqual(changes[0], {
-        foo: "foo", bar: "bar", _diff: { "foo": "foo" }
+        foo: "foo", bar: "bar",
     })
+    assert.deepEqual(changes[0]._diff, { "foo": "foo" })
     assert.deepEqual(changes[1], {
-        foo: "foo2", bar: "bar", _diff: { "foo": "foo2" }
+        foo: "foo2", bar: "bar"
     })
+    assert.deepEqual(changes[1]._diff, { "foo": "foo2" })
     assert.deepEqual(changes[2], {
-        foo: "foo2", bar: "bar2", _diff: { "bar": "bar2" }
+        foo: "foo2", bar: "bar2"
     })
+    assert.deepEqual(changes[2]._diff, { "bar": "bar2" })
     assert.notEqual(changes[0], changes[1])
     assert.notEqual(changes[1], changes[2])
 
@@ -106,29 +109,34 @@ test("works with nested things", function (assert) {
 
     assert.deepEqual(changes[0], {
         customers: 5,
-        fruits: { apples: 3, oranges: 6, _diff: { "oranges": 6 } },
-        _diff: { fruits: { oranges: 6 } }
+        fruits: { apples: 3, oranges: 6 }
     })
+    assert.deepEqual(changes[0]._diff, { fruits: { oranges: 6 } })
+    assert.deepEqual(changes[0].fruits._diff, { "oranges": 6 })
     assert.deepEqual(changes[1], {
         customers: 10,
-        _diff: { customers: 10 },
-        fruits: { apples: 3, oranges: 6, _diff: { oranges: 6 } }
+        fruits: { apples: 3, oranges: 6 }
     })
+    assert.deepEqual(changes[1]._diff, { customers: 10 })
+    assert.deepEqual(changes[1].fruits._diff, { oranges: 6 })
     assert.deepEqual(changes[2], {
         customers: 10,
-        _diff: { fruits: { apples: 4 } },
-        fruits: { apples: 4, oranges: 6, _diff: { apples: 4 } }
+        fruits: { apples: 4, oranges: 6 }
     })
+    assert.deepEqual(changes[2]._diff, { fruits: { apples: 4 } })
+    assert.deepEqual(changes[2].fruits._diff, { apples: 4 })
 
     assert.deepEqual(initialState.fruits, {
         apples: 3, oranges: 5
     })
     assert.deepEqual(fruitChanges[0], {
-        apples: 3, oranges: 6, _diff: { oranges: 6 }
+        apples: 3, oranges: 6
     })
+    assert.deepEqual(fruitChanges[0]._diff, { oranges: 6 })
     assert.deepEqual(fruitChanges[1], {
-        apples: 4, oranges: 6, _diff: { apples: 4 }
+        apples: 4, oranges: 6
     })
+    assert.deepEqual(fruitChanges[1]._diff, { apples: 4 })
 
     assert.equal(changes[1].fruits, changes[0].fruits,
         "unchanged properties are the same value")
@@ -216,9 +224,9 @@ test("_diff is correct with 2way bind", function t(assert) {
 
     assert.equal(values.length, 1)
     assert.deepEqual(values[0], {
-        foo: "bar2",
-        _diff: { foo: "bar2" }
+        foo: "bar2"
     })
+    assert.deepEqual(values[0]._diff, { foo: "bar2" })
 
     assert.end()
 })
