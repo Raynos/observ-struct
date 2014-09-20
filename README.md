@@ -34,7 +34,7 @@ var state = ObservStruct({
 })
 
 state(function (current) {
-  console.log("apples", current.fruit.apples)
+  console.log("apples", current.fruits.apples)
   console.log("customers", current.customers)
 })
 
@@ -43,7 +43,7 @@ state.fruits(function (current) {
 })
 
 var initialState = state()
-assert.equal(initialState.fruits.bananas, 5)
+assert.equal(initialState.fruits.oranges, 5)
 assert.equal(initialState.customers, 5)
 
 state.fruits.oranges.set(6)
