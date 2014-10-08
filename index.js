@@ -1,8 +1,8 @@
 var Observ = require("observ")
 var extend = require("xtend")
 
-var blackList = ["name", "_diff", "_type", "_version"]
-var blackListReasons = {
+var blackList = {
+    "length": "Clashes with `Function.prototype.length`.\n",
     "name": "Clashes with `Function.prototype.name`.\n",
     "_diff": "_diff is reserved key of observ-struct.\n",
     "_type": "_type is reserved key of observ-struct.\n",
@@ -19,7 +19,7 @@ function setNonEnumerable(object, key, value) {
     })
 }
 
-/* ObservStruct := (Object<String, Observ<T>>) => 
+/* ObservStruct := (Object<String, Observ<T>>) =>
     Object<String, Observ<T>> &
         Observ<Object<String, T> & {
             _diff: Object<String, Any>
@@ -36,10 +36,10 @@ function ObservStruct(struct) {
     var nestedTransaction = NO_TRANSACTION
 
     keys.forEach(function (key) {
-        if (blackList.indexOf(key) !== -1) {
+        if (blackList.hasOwnProperty(key)) {
             throw new Error("cannot create an observ-struct " +
                 "with a key named '" + key + "'.\n" +
-                blackListReasons[key]);
+                blackList[key]);
         }
 
         var observ = struct[key]
