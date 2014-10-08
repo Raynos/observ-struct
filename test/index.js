@@ -60,7 +60,7 @@ test("supports both observs and values", function (assert) {
         foo: Observ("foo"),
         bar: "bar"
     })
-    
+
     assert.equal(typeof obj.foo, "function")
     assert.equal(obj.foo(), "foo")
     assert.equal(obj.bar, "bar")
@@ -148,6 +148,12 @@ test("observ struct with blackList", function t(assert) {
     assert.throws(function () {
         ObservHash({
             name: Observ("foo")
+        });
+    }, /cannot create/);
+
+    assert.throws(function () {
+        ObservHash({
+            length: Observ("foo")
         });
     }, /cannot create/);
 
