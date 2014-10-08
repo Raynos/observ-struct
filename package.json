@@ -1,6 +1,6 @@
 {
   "name": "observ-struct",
-  "version": "5.0.1",
+  "version": "6.0.0",
   "description": "An object with observable key value pairs",
   "keywords": [],
   "author": "Raynos <raynos2@gmail.com>",
