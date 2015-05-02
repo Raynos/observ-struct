@@ -18,9 +18,10 @@
   },
   "dependencies": {
     "observ": "~0.2.0",
-    "xtend": "^3.0.0"
+    "xtend": "^4.0.0"
   },
   "devDependencies": {
+    "istanbul": "^0.3.13",
     "tape": "~2.5.0"
   },
   "licenses": [
