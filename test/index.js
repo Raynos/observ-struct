@@ -236,3 +236,30 @@ test("_diff is correct with 2way bind", function t(assert) {
 
     assert.end()
 })
+
+test("nested observ-structs are always flattened", function t(assert) {
+    var obs = ObservHash({
+        foo: ObservHash({
+            bar: Observ(8)
+        })
+    })
+
+    assert.equal(obs().foo.bar, 8)
+    assert.equal(obs.foo().bar, 8)
+    assert.equal(obs.foo.bar(), 8)
+
+    var v = obs()
+    v.baz = ObservHash({
+        quux: Observ(23)
+    })
+    obs.set(v)
+
+    assert.equal(obs().baz.quux, 23)
+    assert.equal(obs.baz().quux, 23)
+    assert.equal(obs.baz.quux(), 23)
+
+    console.log(obs())
+
+    assert.end()
+
+})
