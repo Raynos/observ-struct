@@ -57,24 +57,27 @@ function ObservStruct(struct) {
         obs[key] = observ
 
         if (typeof observ === "function") {
-            observ(function (value) {
-                if (nestedTransaction === value) {
-                    return
-                }
-
-                var state = extend(obs())
-                state[key] = value
-                var diff = {}
-                diff[key] = value && value._diff ?
-                    value._diff : value
-
-                setNonEnumerable(state, "_diff", diff)
-                currentTransaction = state
-                obs.set(state)
-                currentTransaction = NO_TRANSACTION
-            })
+            observ(nestedChange.bind(null, key))
         }
     })
+
+    function nestedChange (key, value) {
+        if (nestedTransaction === value) {
+            return
+        }
+
+        var state = extend(obs())
+        state[key] = value
+        var diff = {}
+        diff[key] = value && value._diff ?
+            value._diff : value
+
+        setNonEnumerable(state, "_diff", diff)
+        currentTransaction = state
+        obs.set(state)
+        currentTransaction = NO_TRANSACTION
+    }
+
     var _set = obs.set
     obs.set = function trackDiff(value) {
         if (currentTransaction === value) {
@@ -86,6 +89,7 @@ function ObservStruct(struct) {
             checkBlackList(key)
             if (typeof newState[key] === "function") {
                 obs[key] = newState[key]
+                obs[key](nestedChange.bind(null, key))
                 newState[key] = newState[key]()
             }
         })
@@ -99,7 +103,7 @@ function ObservStruct(struct) {
         }
 
         keys.forEach(function (key) {
-            var observ = struct[key]
+            var observ = obs[key]
             var newObservValue = newState[key]
 
             if (typeof observ === "function" &&

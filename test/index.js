@@ -237,28 +237,43 @@ test("_diff is correct with 2way bind", function t(assert) {
     assert.end()
 })
 
-test("nested observ-structs are always flattened", function t(assert) {
-    var obs = ObservHash({
-        foo: ObservHash({
-            bar: Observ(8)
-        })
-    })
+test("nested observ-structs are folded into each other", function t(assert) {
+    var foo = ObservHash({ value: Observ(8) })
+    var obs = ObservHash({ foo: foo })
 
-    assert.equal(obs().foo.bar, 8)
-    assert.equal(obs.foo().bar, 8)
-    assert.equal(obs.foo.bar(), 8)
+    var updates = 0;
 
+    obs(function () { updates++ });
+
+    assert.equal(obs().foo.value, 8)
+    assert.equal(obs.foo().value, 8)
+    assert.equal(obs.foo.value(), 8)
+
+    obs.foo.value.set(9)
+    assert.equal(updates, 1)
+    assert.equal(obs().foo.value, 9)
+    obs.foo.set({value: 10})
+    assert.equal(updates, 2)
+    assert.equal(obs().foo.value, 10)
+    assert.equal(typeof obs.foo, "function")
+    assert.equal(typeof obs.foo.value, "function")
+
+    var bar = ObservHash({ value: Observ(23) })
     var v = obs()
-    v.baz = ObservHash({
-        quux: Observ(23)
-    })
+    v.bar = bar
     obs.set(v)
 
-    assert.equal(obs().baz.quux, 23)
-    assert.equal(obs.baz().quux, 23)
-    assert.equal(obs.baz.quux(), 23)
+    assert.equal(updates, 3)
+    assert.equal(obs.bar, bar)
+    assert.equal(obs().bar.value, 23)
+    assert.equal(obs.bar().value, 23)
+    assert.equal(obs.bar.value(), 23)
 
-    console.log(obs())
+    obs.bar.value.set(42)
+    assert.equal(updates, 4)
+    assert.equal(obs().bar.value, 42)
+    assert.equal(typeof obs.bar, "function")
+    assert.equal(typeof obs.bar.value, "function")
 
     assert.end()
 
