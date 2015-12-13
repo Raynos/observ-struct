@@ -8,6 +8,15 @@ var blackList = {
     "_type": "_type is reserved key of observ-struct.\n",
     "_version": "_version is reserved key of observ-struct.\n"
 }
+
+function checkBlackList(key) {
+    if (blackList.hasOwnProperty(key)) {
+        throw new Error("cannot create an observ-struct " +
+            "with a key named '" + key + "'.\n" +
+            blackList[key]);
+    }
+}
+
 var NO_TRANSACTION = {}
 
 function setNonEnumerable(object, key, value) {
@@ -36,12 +45,7 @@ function ObservStruct(struct) {
     var nestedTransaction = NO_TRANSACTION
 
     keys.forEach(function (key) {
-        if (blackList.hasOwnProperty(key)) {
-            throw new Error("cannot create an observ-struct " +
-                "with a key named '" + key + "'.\n" +
-                blackList[key]);
-        }
-
+        checkBlackList(key)
         var observ = struct[key]
         initialState[key] = typeof observ === "function" ?
             observ() : observ
@@ -53,24 +57,27 @@ function ObservStruct(struct) {
         obs[key] = observ
 
         if (typeof observ === "function") {
-            observ(function (value) {
-                if (nestedTransaction === value) {
-                    return
-                }
-
-                var state = extend(obs())
-                state[key] = value
-                var diff = {}
-                diff[key] = value && value._diff ?
-                    value._diff : value
-
-                setNonEnumerable(state, "_diff", diff)
-                currentTransaction = state
-                obs.set(state)
-                currentTransaction = NO_TRANSACTION
-            })
+            observ(nestedChange.bind(null, key))
         }
     })
+
+    function nestedChange (key, value) {
+        if (nestedTransaction === value) {
+            return
+        }
+
+        var state = extend(obs())
+        state[key] = value
+        var diff = {}
+        diff[key] = value && value._diff ?
+            value._diff : value
+
+        setNonEnumerable(state, "_diff", diff)
+        currentTransaction = state
+        obs.set(state)
+        currentTransaction = NO_TRANSACTION
+    }
+
     var _set = obs.set
     obs.set = function trackDiff(value) {
         if (currentTransaction === value) {
@@ -78,6 +85,14 @@ function ObservStruct(struct) {
         }
 
         var newState = extend(value)
+        Object.keys(newState).map(function(key){
+            checkBlackList(key)
+            if (typeof newState[key] === "function") {
+                obs[key] = newState[key]
+                obs[key](nestedChange.bind(null, key))
+                newState[key] = newState[key]()
+            }
+        })
         setNonEnumerable(newState, "_diff", value)
         _set(newState)
     }
@@ -88,7 +103,7 @@ function ObservStruct(struct) {
         }
 
         keys.forEach(function (key) {
-            var observ = struct[key]
+            var observ = obs[key]
             var newObservValue = newState[key]
 
             if (typeof observ === "function" &&
