@@ -65,7 +65,7 @@ It returns an `Observ` instance `obj`. The value of `obj` is
 
 Whenever one of the observables on a `key` changes the `obj` will
   emit a new object that's a shallow copy with that `key` set to
-  the value of the appropiate observable on that `key`.
+  the value of the appropriate observable on that `key`.
 
 ## Installation
 
