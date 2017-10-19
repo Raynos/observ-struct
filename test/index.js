@@ -236,3 +236,42 @@ test("_diff is correct with 2way bind", function t(assert) {
 
     assert.end()
 })
+
+test("nested structs can update within event handlers", function t(assert) {
+    assert.plan(1)
+
+    var base = ObservHash({
+      nested: Nested(),
+      other: Observ(false)
+    })
+
+    base(function () {
+      var state = base()
+      if (state.bar) {
+        base.other.set(true)
+      }
+    })
+
+    function Nested () {
+      var struct = ObservHash({
+        foo: Observ(null),
+        bar: Observ(false)
+      })
+
+      struct(function () {
+        if (struct().foo && !struct.bar()) {
+          struct.bar.set(true)
+        }
+      })
+
+      setTimeout(function() {
+        struct.foo.set(true)
+      })
+
+      return struct
+    }
+
+    setTimeout(function() {
+        assert.deepEqual(base().nested, base.nested())
+    }, 10)
+})
