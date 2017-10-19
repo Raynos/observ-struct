@@ -238,7 +238,7 @@ test("_diff is correct with 2way bind", function t(assert) {
 })
 
 test("nested structs can update within event handlers", function t(assert) {
-    assert.plan(5)
+    assert.plan(6)
 
     var base = ObservHash({
       nested: Nested(),
@@ -249,7 +249,7 @@ test("nested structs can update within event handlers", function t(assert) {
         var state = base()
         assert.deepEqual(base().nested, base.nested())
 
-        if (state.bar) {
+        if (state.nested.bar && !base.other()) {
             base.other.set(true)
         }
     })
@@ -281,7 +281,7 @@ test("nested structs can update within event handlers", function t(assert) {
 })
 
 test("doubly nested structs can update within event handlers", function t(assert) {
-    assert.plan(7)
+    assert.plan(8)
 
     var base = ObservHash({
       nested: Nested(),
@@ -292,7 +292,7 @@ test("doubly nested structs can update within event handlers", function t(assert
         var state = base()
         assert.deepEqual(base().nested, base.nested())
 
-        if (state.bar) {
+        if (state.nested.bar && !base.other()) {
             base.other.set(true)
         }
     })
