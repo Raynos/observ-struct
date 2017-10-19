@@ -53,7 +53,11 @@ function ObservStruct(struct) {
         obs[key] = observ
 
         if (typeof observ === "function") {
-            observ(function (value) {
+            observ(function () {
+                // the value might be updated already before this handler ran
+                // we must get the *latest* version so that we don't
+                // break out internal state handling
+                value = observ();
                 if (nestedTransaction === value) {
                     return
                 }
