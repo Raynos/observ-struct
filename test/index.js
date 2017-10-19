@@ -238,7 +238,7 @@ test("_diff is correct with 2way bind", function t(assert) {
 })
 
 test("nested structs can update within event handlers", function t(assert) {
-    assert.plan(1)
+    assert.plan(5)
 
     var base = ObservHash({
       nested: Nested(),
@@ -246,32 +246,95 @@ test("nested structs can update within event handlers", function t(assert) {
     })
 
     base(function () {
-      var state = base()
-      if (state.bar) {
-        base.other.set(true)
-      }
+        var state = base()
+        assert.deepEqual(base().nested, base.nested())
+
+        if (state.bar) {
+            base.other.set(true)
+        }
     })
 
     function Nested () {
-      var struct = ObservHash({
-        foo: Observ(null),
-        bar: Observ(false)
-      })
+        var struct = ObservHash({
+            foo: Observ(null),
+            bar: Observ(false)
+        })
 
-      struct(function () {
-        if (struct().foo && !struct.bar()) {
-          struct.bar.set(true)
-        }
-      })
+        struct(function () {
+            if (struct().foo && !struct.bar()) {
+                struct.bar.set(true)
+            }
+        })
 
-      setTimeout(function() {
-        struct.foo.set(true)
-      })
+        setTimeout(function() {
+            struct.foo.set(true)
+        })
 
-      return struct
+        return struct
     }
 
     setTimeout(function() {
         assert.deepEqual(base().nested, base.nested())
-    }, 10)
+        assert.ok(base().other)
+        assert.ok(base.other())
+    }, 100)
+})
+
+test("doubly nested structs can update within event handlers", function t(assert) {
+    assert.plan(7)
+
+    var base = ObservHash({
+      nested: Nested(),
+      other: Observ(false)
+    })
+
+    base(function () {
+        var state = base()
+        assert.deepEqual(base().nested, base.nested())
+
+        if (state.bar) {
+            base.other.set(true)
+        }
+    })
+
+    function Nested () {
+        var struct = ObservHash({
+            foo: DoublyNested(),
+            bar: Observ(false)
+        })
+
+        struct(function () {
+            if (struct().foo.foo && !struct.bar()) {
+                struct.bar.set(true)
+            }
+        })
+
+        return struct
+    }
+
+    function DoublyNested () {
+        var struct = ObservHash({
+            foo: Observ(null),
+            bar: Observ(false)
+        })
+
+        struct(function () {
+            if (struct().foo && !struct.bar()) {
+                struct.bar.set(true)
+            }
+        })
+
+        setTimeout(function() {
+            struct.foo.set(true)
+        })
+
+        return struct
+    }
+
+    setTimeout(function() {
+        assert.deepEqual(base().nested, base.nested())
+        assert.deepEqual(base.nested().foo, base.nested.foo())
+        assert.ok(base().other)
+        assert.ok(base.other())
+    }, 100)
 })
